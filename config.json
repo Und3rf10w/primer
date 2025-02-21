@@ -1,0 +1,65 @@
+{
+    "// Processing parameters": "Basic generation settings",
+    "NumCandidates": 1000,
+    "AvalancheTestCases": 10000,
+    "MinPrimeAttempts": 100,
+    "MaxPrimeAttempts": 10000,
+    "ParallelWorkers": 8,
+    
+    "// Distribution thresholds": "Acceptable ranges for bit distribution",
+    "MinBitDistribution": 0.45,
+    "MaxBitDistribution": 0.55,
+    "MinAvalancheScore": 0.49,
+    
+    "// Statistical test thresholds": "Parameters for statistical validation",
+    "StatisticalTests": {
+        "MinPValue": 0.01,
+        "MaxPValue": 0.99,
+        "MinEntropyScore": 1.5,
+        "MaxEntropyScore": 2.0,
+        "MaxBitFrequencyDeviation": 0.1,
+        "MinRunsZScore": -2.0,
+        "MaxRunsZScore": 2.0,
+        "MaxSerialCorrelation": 0.1,
+        "MinLinearComplexity": 12
+    },
+
+    "// Validation criteria": "Requirements for accepting generated constants",
+    "ValidationCriteria": {
+        "MinHammingWeight": 12,
+        "MaxHammingWeight": 20,
+        "MinHammingDistance": 12,
+        "MinDifferentBits": 16
+    },
+
+    "// Output settings": "Configuration for result output",
+    "ResultsFile": "rc6_constants.json",
+    "DetailedLogging": true,
+    "StatisticalAnalysis": true,
+    "LogLevel": "info",
+    "OutputFormat": "text",
+
+    "// Performance settings": "Tuning parameters for generation",
+    "BatchSize": 100,
+    "TimeoutSeconds": 3600,
+    "MemoryLimit": "1GB",
+    
+    "// Advanced options": "Fine-tuning parameters",
+    "RandomnessTests": {
+        "EnableExtendedTests": true,
+        "RunsTestWeight": 1.0,
+        "FrequencyTestWeight": 1.0,
+        "SerialTestWeight": 1.0,
+        "AutocorrelationWeight": 1.0,
+        "LinearComplexityWeight": 1.0
+    },
+
+    "// Reporting options": "Configuration for result reporting",
+    "ReportFormat": {
+        "IncludeTimestamps": true,
+        "IncludeDetailedStats": true,
+        "IncludeFailedCandidates": false,
+        "ExportFormat": "json",
+        "CompressResults": false
+    }
+}
