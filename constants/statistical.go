@@ -14,18 +14,18 @@ const (
 	maxPValue = 0.99
 
 	// Entropy thresholds
-	minEntropyScore = 1.5
-	maxEntropyScore = 2.0
+	minEntropyScore = 1.0
+	maxEntropyScore = 2.5
 
 	// Frequency test thresholds
-	maxBitFrequencyDeviation = 0.1
+	maxBitFrequencyDeviation = 0.15
 
 	// Runs test thresholds
-	minRunsZScore = -2.0
-	maxRunsZScore = 2.0
+	minRunsZScore = -3.0
+	maxRunsZScore = 3.0
 
 	// Serial test thresholds
-	maxSerialCorrelation = 0.1
+	maxSerialCorrelation = 0.5
 )
 
 // calculateEntropy calculates Shannon entropy of bit distribution

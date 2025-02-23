@@ -161,3 +161,25 @@ func BenchmarkIsPrime(b *testing.B) {
 		generator.isPrime(value)
 	}
 }
+
+func BenchmarkRC6Constants(b *testing.B) {
+	g := NewGenerator(DefaultConfig())
+
+	b.Run("RC6_P", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			g.runAllStatisticalTests(RC6_P)
+		}
+	})
+
+	b.Run("RC6_Q", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			g.runAllStatisticalTests(RC6_Q)
+		}
+	})
+
+	b.Run("RC6_Combined", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			g.testCombinedAvalancheEffect(RC6_P, RC6_Q)
+		}
+	})
+}

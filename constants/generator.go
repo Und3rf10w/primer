@@ -207,6 +207,15 @@ func (g *Generator) verifyTestResults(tests []StatisticalTest) bool {
 	return failedTests <= len(tests)/5
 }
 
+func (g *Generator) rc6Transform(input, constant uint32) uint32 {
+	// Simplified RC6-like transformation
+	x := input
+	x = ((x << 5) | (x >> 27)) // ROL by 5
+	x *= constant
+	x = ((x << 3) | (x >> 29)) // ROL by 3
+	return x
+}
+
 func (g *Generator) worker(workerID int, candidates chan<- ConstantCandidate, errors chan<- error, batchSize int) {
 	// Use context from Generator struct
 	for i := 0; i < batchSize; i++ {
@@ -364,29 +373,35 @@ func (g *Generator) calculateBitDistribution(n uint32) float64 {
 }
 
 func (g *Generator) testAvalancheEffect(constant uint32) float64 {
-	var totalChanges int
+	var totalChanges float64
+	testCases := g.config.AvalancheTestCases
 
-	for i := 0; i < g.config.AvalancheTestCases; i++ {
-		var input [16]byte
-		_, err := rand.Read(input[:])
-		if err != nil {
-			g.logger.Error("Failed to generate random input:", err)
-			continue
+	for i := 0; i < testCases; i++ {
+		// Generate random input
+		var input uint32
+		for j := 0; j < 4; j++ {
+			b := make([]byte, 1)
+			rand.Read(b)
+			input = (input << 8) | uint32(b[0])
 		}
 
-		input1 := make([]byte, 16)
-		input2 := make([]byte, 16)
-		copy(input1, input[:])
-		copy(input2, input[:])
+		// Test each bit position
+		for bitPos := 0; bitPos < 32; bitPos++ {
+			// Flip one bit
+			modifiedInput := input ^ (1 << uint(bitPos))
 
-		bitPos := i % 128
-		input2[bitPos/8] ^= 1 << uint(bitPos%8)
+			// Apply RC6-like transformation
+			result1 := g.rc6Transform(input, constant)
+			result2 := g.rc6Transform(modifiedInput, constant)
 
-		changes := g.compareOutputs(input1, input2, constant)
-		totalChanges += changes
+			// Count changed bits in output
+			changes := bits.OnesCount32(result1 ^ result2)
+			totalChanges += float64(changes)
+		}
 	}
 
-	return float64(totalChanges) / float64(g.config.AvalancheTestCases*128)
+	// Average changes per bit flip (normalize to 0-1 range)
+	return totalChanges / float64(testCases*32*32)
 }
 
 func (g *Generator) compareOutputs(input1, input2 []byte, constant uint32) int {
@@ -593,4 +608,66 @@ func (g *Generator) hasSimpleBitPattern(value uint32) bool {
 	}
 
 	return false
+}
+
+func (g *Generator) testConstantCorrelation(p, q uint32) float64 {
+	// Convert to bit arrays
+	pBits := make([]int, 32)
+	qBits := make([]int, 32)
+
+	for i := 0; i < 32; i++ {
+		if p&(1<<uint(i)) != 0 {
+			pBits[i] = 1
+		}
+		if q&(1<<uint(i)) != 0 {
+			qBits[i] = 1
+		}
+	}
+
+	// Calculate correlation coefficient
+	var sum, pSum, qSum, pSqSum, qSqSum float64
+	n := float64(32)
+
+	for i := 0; i < 32; i++ {
+		pVal := float64(pBits[i])
+		qVal := float64(qBits[i])
+		sum += pVal * qVal
+		pSum += pVal
+		qSum += qVal
+		pSqSum += pVal * pVal
+		qSqSum += qVal * qVal
+	}
+
+	numerator := sum - (pSum * qSum / n)
+	denominator := ((pSqSum - (pSum * pSum / n)) * (qSqSum - (qSum * qSum / n)))
+
+	if denominator == 0 {
+		return 1.0
+	}
+	return numerator / denominator
+}
+
+func (g *Generator) testCombinedAvalancheEffect(p, q uint32) float64 {
+	var totalChanges int
+	testCases := g.config.AvalancheTestCases
+
+	for i := 0; i < testCases; i++ {
+		// Test how changes in input affect both P and Q operations
+		input := uint32(i)
+		modified := input ^ 1 // Flip lowest bit
+
+		result1 := (input * p) ^ (input * q)
+		result2 := (modified * p) ^ (modified * q)
+
+		changes := 0
+		diff := result1 ^ result2
+		for diff != 0 {
+			changes += int(diff & 1)
+			diff >>= 1
+		}
+
+		totalChanges += changes
+	}
+
+	return float64(totalChanges) / float64(testCases*32)
 }
