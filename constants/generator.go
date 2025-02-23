@@ -522,11 +522,18 @@ func (g *Generator) saveResults(result *GenerationResult) error {
 }
 
 func (g *Generator) runTests(candidate ConstantCandidate) TestResults {
-	return TestResults{
+	results := TestResults{
 		PrimalityTests: g.runPrimalityTests(candidate.Value),
 		AvalancheTests: g.runAvalancheTests(candidate.Value),
 		WeakKeyTests:   g.runWeakKeyTests(candidate.Value),
 	}
+
+	// Add statistical tests when enabled in config
+	if g.config.StatisticalAnalysis {
+		results.StatisticalTests = g.runAllStatisticalTests(candidate.Value)
+	}
+
+	return results
 }
 
 func (g *Generator) runPrimalityTests(value uint32) []PrimalityTest {
