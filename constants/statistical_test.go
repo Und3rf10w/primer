@@ -114,20 +114,20 @@ func TestCalculateEntropy(t *testing.T) {
 		{
 			name:    "Random-like value",
 			value:   0x1B7DE952,
-			wantMin: 1.5,
-			wantMax: 2.0,
+			wantMin: 0.9,
+			wantMax: 1.1,
 		},
 		{
 			name:    "RC6 P constant",
 			value:   RC6_P,
-			wantMin: 1.5,
-			wantMax: 2.0,
+			wantMin: 0.9,
+			wantMax: 1.1,
 		},
 		{
 			name:    "RC6 Q constant",
 			value:   RC6_Q,
-			wantMin: 1.5,
-			wantMax: 2.0,
+			wantMin: 0.9,
+			wantMax: 1.1,
 		},
 	}
 
@@ -171,13 +171,13 @@ func TestRunBitFrequencyTest(t *testing.T) {
 		{
 			name:      "RC6 P constant",
 			value:     RC6_P,
-			wantScore: 0.0078,
+			wantScore: 0.9375,
 			wantPass:  true,
 		},
 		{
 			name:      "RC6 Q constant",
 			value:     RC6_Q,
-			wantScore: 0.0078,
+			wantScore: 0.75,
 			wantPass:  true,
 		},
 	}

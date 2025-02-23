@@ -1,9 +1,9 @@
 package constants
 
 import (
-	"encoding/binary"
 	"fmt"
 	"math"
+	"math/bits"
 	"sync"
 )
 
@@ -30,19 +30,17 @@ const (
 
 // calculateEntropy calculates Shannon entropy of bit distribution
 func (g *Generator) calculateEntropy(value uint32) float64 {
-	bytes := make([]byte, 4)
-	binary.BigEndian.PutUint32(bytes, value)
-
-	// Count frequency of each byte value
-	counts := make(map[byte]int)
-	for _, b := range bytes {
-		counts[b]++
+	// Count frequency of each bit
+	counts := make(map[bool]int)
+	for i := 0; i < 32; i++ {
+		bit := (value & (1 << uint(i))) != 0
+		counts[bit]++
 	}
 
 	// Calculate Shannon entropy
 	entropy := 0.0
 	for _, count := range counts {
-		p := float64(count) / 4.0
+		p := float64(count) / 32.0
 		if p > 0 {
 			entropy -= p * math.Log2(p)
 		}
@@ -74,10 +72,9 @@ func (g *Generator) runBitFrequencyTest(value uint32) StatisticalTest {
 // runRunsTest performs the runs test for randomness
 func (g *Generator) runRunsTest(value uint32) StatisticalTest {
 	var runs int
-	var currentRun bool
+	var currentRun bool = value&1 != 0
 
 	// Count runs
-	currentRun = value&1 != 0
 	for i := 1; i < 32; i++ {
 		bit := value&(1<<uint(i)) != 0
 		if bit != currentRun {
@@ -85,11 +82,14 @@ func (g *Generator) runRunsTest(value uint32) StatisticalTest {
 			currentRun = bit
 		}
 	}
+	runs++ // Count the last run
 
 	// Calculate expected runs and variance
 	n := 32
-	expectedRuns := (2.0*float64(n) - 1.0) / 3.0
-	variance := (16.0*float64(n) - 29.0) / 90.0
+	n1 := bits.OnesCount32(value)
+	n0 := n - n1
+	expectedRuns := 1.0 + 2.0*float64(n0)*float64(n1)/float64(n)
+	variance := (expectedRuns - 1.0) * (expectedRuns - 2.0) / float64(n-1)
 
 	// Calculate Z-score
 	zScore := (float64(runs) - expectedRuns) / math.Sqrt(variance)
