@@ -205,7 +205,7 @@ func TestRunsTest(t *testing.T) {
 		{
 			name:     "Alternating bits",
 			value:    0xAAAAAAAA,
-			wantPass: true,
+			wantPass: false,
 		},
 		{
 			name:     "All zeros",
