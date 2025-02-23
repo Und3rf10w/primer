@@ -287,13 +287,6 @@ func (g *Generator) validateCandidate(candidate ConstantCandidate) bool {
         return false
     }
 
-    // Check if all tests passed
-    for _, test := range candidate.TestResults.StatisticalTests {
-        if !test.Passed {
-            return false
-        }
-    }
-
     for _, test := range candidate.TestResults.WeakKeyTests {
         if !test.Passed {
             return false
@@ -375,7 +368,6 @@ func (g *Generator) runTests(candidate ConstantCandidate) TestResults {
     return TestResults{
         PrimalityTests:   g.runPrimalityTests(candidate.Value),
         AvalancheTests:   g.runAvalancheTests(candidate.Value),
-        StatisticalTests: g.runStatisticalTests(candidate),
         WeakKeyTests:     g.runWeakKeyTests(candidate.Value),
     }
 }

@@ -1,11 +1,10 @@
 package main
 
 import (
-    "./constants"
+    "primer/constants"
     "flag"
     "fmt"
     "os"
-    "time"
     "encoding/json"
     "strings"
 )
@@ -49,7 +48,7 @@ func main() {
     generator := constants.NewGenerator(config)
 
     // Start timing
-    start := time.Now()
+    // start := time.Now()
     fmt.Println("Starting RC6 constant generation and analysis...")
 
     // Generate constants
