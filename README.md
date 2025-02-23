@@ -12,6 +12,9 @@ go run main.go -quick -compare existing_constants.json
 
 # Generate CSV output
 go run main.go -format csv -output results.csv
+
+# Run all tests
+go test ./constants/...
 ```
 
 Then just cross your fingers.
